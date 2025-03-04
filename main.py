@@ -10,13 +10,13 @@ class app:
         self.option_frame = tk.Frame(master_frame, bg="#c3c3c3")
         self.option_frame.pack(side=tk.LEFT)
         self.option_frame.pack_propagate(False)
-        self.option_frame.configure(width=100, height=400)
+        self.option_frame.configure(width=150, height=500)
         # main_frame
         self.main_frame = tk.Frame(
             master_frame, highlightbackground='black', highlightthickness=2)
         self.main_frame.pack(side=tk.LEFT)
         self.main_frame.pack_propagate(False)
-        self.main_frame.configure(height=400, width=500)
+        self.main_frame.configure(height=500, width=800)
 
         # Buttons
         self.home_btn = tk.Button(self.option_frame, text="Home", font=(
@@ -54,7 +54,9 @@ class app:
 
 
 root = tk.Tk()
-root.geometry("600x400")
+root.geometry("800x500")
 root.title("My SIEM")
+# Removing resizing because scaling everything takes a lot of efforts
+root.resizable(False, False)
 app(master_frame=root)
 root.mainloop()
