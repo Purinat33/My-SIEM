@@ -1,5 +1,14 @@
+import math
 import tkinter as tk
 import psutil
+import os
+import subprocess
+import json
+import sys
+import platform
+
+# https://umeey.medium.com/system-monitoring-made-easy-with-pythons-psutil-library-4b9add95a443
+total_mem = psutil.virtual_memory().total / (1024.0 ** 3)
 
 
 class app:
@@ -20,7 +29,7 @@ class app:
         self.main_frame.configure(height=500, width=1000)
 
         # Buttons
-        self.home_btn = tk.Button(self.option_frame, text="Home", font=(
+        self.home_btn = tk.Button(self.option_frame, text="Overview", font=(
             "Bold", 15), fg="#158aff", bd=0, bg="#c3c3c3", command=self.home)
         self.home_btn.place(x=10, y=50)
 
@@ -51,6 +60,26 @@ class app:
         self.intro = tk.Label(
             self.main_frame, text="System Overview", font=("Helvatica", 18))
         self.intro.pack()
+        # https://umeey.medium.com/system-monitoring-made-easy-with-pythons-psutil-library-4b9add95a443
+        self.os = platform.system()
+        self.platform = tk.Label(
+            self.main_frame, text=f"Operating System: {self.os}", font=("Ariel", 14))
+        self.platform.pack()
+
+        self.version = tk.Label(
+            self.main_frame, text=f"Version: {platform.version()}", font=("Ariel", 14))
+        self.version.pack()
+
+        self.architecture = tk.Label(
+            self.main_frame, text=f"Architecture: {platform.architecture()[0]}", font=("Ariel", 14)
+        )
+        self.architecture.pack()
+
+        ############################
+        self.total_mem = tk.Label(
+            self.main_frame, text=f"Total Memory: {(round(total_mem, 3))} GB", font=("Ariel", 14)
+        )
+        self.total_mem.pack(pady=10)
 
     def fim(self):
         self.clear()
