@@ -1,4 +1,5 @@
 import tkinter as tk
+import psutil
 
 
 class app:
@@ -10,13 +11,13 @@ class app:
         self.option_frame = tk.Frame(master_frame, bg="#c3c3c3")
         self.option_frame.pack(side=tk.LEFT)
         self.option_frame.pack_propagate(False)
-        self.option_frame.configure(width=150, height=500)
+        self.option_frame.configure(width=200, height=500)
         # main_frame
         self.main_frame = tk.Frame(
             master_frame, highlightbackground='black', highlightthickness=2)
         self.main_frame.pack(side=tk.LEFT)
         self.main_frame.pack_propagate(False)
-        self.main_frame.configure(height=500, width=800)
+        self.main_frame.configure(height=500, width=1000)
 
         # Buttons
         self.home_btn = tk.Button(self.option_frame, text="Home", font=(
@@ -24,37 +25,50 @@ class app:
         self.home_btn.place(x=10, y=50)
 
         # Buttons
-        self.file_integrity = tk.Button(self.option_frame, text="FIM", font=(
+        self.file_integrity = tk.Button(self.option_frame, text="File Integrity", font=(
             "Bold", 15), fg="#158aff", bd=0, bg="#c3c3c3", command=self.fim)
         self.file_integrity.place(x=10, y=100)
 
         # Buttons
-        self.application = tk.Button(self.option_frame, text="Process", font=(
+        self.application = tk.Button(self.option_frame, text="Process Monitoring", font=(
             "Bold", 15), fg="#158aff", bd=0, bg="#c3c3c3", command=self.process)
         self.application.place(x=10, y=150)
 
         # Buttons
-        self.log = tk.Button(self.option_frame, text="Log", font=(
+        self.log = tk.Button(self.option_frame, text="Log Analysis", font=(
             "Bold", 15), fg="#158aff", bd=0, bg="#c3c3c3", command=self.log)
         self.log.place(x=10, y=200)
 
-    def home(self):
+        self.home()
+
+    def clear(self):
         # Clear MainFrame
         for i in self.main_frame.winfo_children():
             i.destroy()
 
+    def home(self):
+        self.clear()
+        self.intro = tk.Label(
+            self.main_frame, text="System Overview", font=("Helvatica", 18))
+        self.intro.pack()
+
     def fim(self):
-        pass
+        self.clear()
 
     def process(self):
-        pass
+        self.clear()
+        # https://www.tutorialspoint.com/how-to-get-the-list-of-running-processes-using-python
+        self.processes = psutil.process_iter()
+        # for process in self.processes:
+        #     # Sort process with the most CPU usage and/or ram usage
+        #     print(f"PID: {process.pid}, Name: {process.name()}")
 
     def log(self):
-        pass
+        self.clear()
 
 
 root = tk.Tk()
-root.geometry("800x500")
+root.geometry("1000x500")
 root.title("My SIEM")
 # Removing resizing because scaling everything takes a lot of efforts
 root.resizable(False, False)
