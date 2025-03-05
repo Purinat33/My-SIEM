@@ -6,6 +6,8 @@ import subprocess
 import json
 import sys
 import platform
+from tkinter import ttk
+
 
 # https://umeey.medium.com/system-monitoring-made-easy-with-pythons-psutil-library-4b9add95a443
 total_mem = psutil.virtual_memory().total / (1024.0 ** 3)
@@ -99,27 +101,27 @@ class app:
         # https://umeey.medium.com/system-monitoring-made-easy-with-pythons-psutil-library-4b9add95a443
         self.os = platform.system()
         self.platform = tk.Label(
-            self.main_frame, text=f"Operating System: {self.os}", font=("Ariel", 14))
+            self.main_frame, text=f"Operating System: {self.os}", font=TEXT_FONT)
         self.platform.pack()
 
         self.version = tk.Label(
-            self.main_frame, text=f"Version: {platform.version()}", font=("Ariel", 14))
+            self.main_frame, text=f"Version: {platform.version()}", font=TEXT_FONT)
         self.version.pack()
 
         self.architecture = tk.Label(
-            self.main_frame, text=f"Architecture: {platform.architecture()[0]}", font=("Ariel", 14)
+            self.main_frame, text=f"Architecture: {platform.architecture()[0]}", font=TEXT_FONT
         )
         self.architecture.pack()
 
         ############################
         self.total_mem = tk.Label(
-            self.main_frame, text=f"Total Memory: {(round(total_mem, 3))} GB", font=("Ariel", 14)
+            self.main_frame, text=f"Total Memory: {(round(total_mem, 3))} GB", font=TEXT_FONT
         )
         self.total_mem.pack(pady=10)
 
         # Free Memory, will change so we need a refresh button
         self.avail_mem = tk.Label(
-            self.main_frame, text=f"Available Memory: {round(get_avail_mem(), 3)} GB", font=("Ariel", 14)
+            self.main_frame, text=f"Available Memory: {round(get_avail_mem(), 3)} GB", font=TEXT_FONT
         )
         self.avail_mem.pack()
 
@@ -130,22 +132,22 @@ class app:
 
         #######################
         self.total_cpu_phy = tk.Label(
-            self.main_frame, text=f"Physical Cores: {physical_cores}", font=("Ariel", 14)
+            self.main_frame, text=f"Physical Cores: {physical_cores}", font=TEXT_FONT
         )
         self.total_cpu_phy.pack(pady=10)
 
         self.total_core = tk.Label(
-            self.main_frame, text=f"Total Cores: {total_cores}", font=("Ariel", 14)
+            self.main_frame, text=f"Total Cores: {total_cores}", font=TEXT_FONT
         )
         self.total_core.pack()
 
         self.speed = tk.Label(
-            self.main_frame, text=f"CPU Speed: {cpu_speed} MHz", font=("Ariel", 14)
+            self.main_frame, text=f"CPU Speed: {cpu_speed} MHz", font=TEXT_FONT
         )
         self.speed.pack()
 
         self.cpu_usage = tk.Label(
-            self.main_frame, text=f"Average CPU Usage: {round(get_cpu_usage(), 3)} %", font=("Ariel", 14)
+            self.main_frame, text=f"Average CPU Usage: {round(get_cpu_usage(), 3)} %", font=TEXT_FONT
         )
         self.cpu_usage.pack()
 
@@ -156,12 +158,12 @@ class app:
 
     def updateAvailMem(self, avail_mem):
         avail_mem.config(
-            text=f"Available Memory: {round(get_avail_mem(), 3)} GB", font=("Ariel", 14)
+            text=f"Available Memory: {round(get_avail_mem(), 3)} GB", font=TEXT_FONT
         )
 
     def updateCPU(self, use_cpu):
         use_cpu.config(
-            text=f"Average CPU Usage: {round(get_cpu_usage(), 3)} %", font=("Ariel", 14)
+            text=f"Average CPU Usage: {round(get_cpu_usage(), 3)} %", font=TEXT_FONT
         )
 
     def disk(self):
@@ -174,9 +176,9 @@ class app:
         self.disk_info = get_disk_info()
         for drive, info in self.disk_info.items():
             self.disk_name = tk.Label(
-                self.main_frame, text=f"Drive {drive}", font=TEXT_FONT
+                self.main_frame, text=f"Drive {drive}", font=("Helvatica", 16)
             )
-            self.disk_name.pack()
+            self.disk_name.pack(pady=10)
             self.total_space = tk.Label(
                 self.main_frame, text=f"Total Space: {round(info['total_space'], 3)} GB", font=TEXT_FONT
             )
@@ -185,10 +187,15 @@ class app:
                 self.main_frame, text=f"Used Space: {round(info['used_space'], 3)} GB", font=TEXT_FONT
             )
             self.used_space.pack()
+            self.free_space_gb = round(info['free_space'], 3)
             self.free_space = tk.Label(
-                self.main_frame, text=f"Free Space: {round(info['free_space'], 3)} GB", font=TEXT_FONT
+                self.main_frame, text=f"Free Space: {self.free_space_gb} GB", font=TEXT_FONT
             )
             self.free_space.pack()
+            self.disk_percent = tk.Label(
+                self.main_frame, text=f"Usage: {round(info['usage_percentage'], 3)}%", font=TEXT_FONT
+            )
+            self.disk_percent.pack()
 
     def fim(self):
         self.clear()
