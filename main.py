@@ -7,10 +7,30 @@ import json
 import sys
 import platform
 from tkinter import ttk
+from operator import itemgetter
 
+TEXT_FONT = ("Ariel", 14)
+HEIGHT = 700
+WIDTH = 1000
 
 # https://umeey.medium.com/system-monitoring-made-easy-with-pythons-psutil-library-4b9add95a443
 total_mem = psutil.virtual_memory().total / (1024.0 ** 3)
+processes = []
+for process in psutil.process_iter():
+    processes.append({
+        "PID": process.pid,
+        "Name": process.name(),
+        # "CPU_Usage": process.cpu_percent(interval=0.01),
+        "RAM": process.memory_percent(),
+        # "Parent": process.parent()
+    })
+
+# https://stackoverflow.com/questions/72899/how-to-sort-a-list-of-dictionaries-by-a-value-of-the-dictionary-in-python
+
+
+def getProcessesWithMostRAM():
+    top_cpu = sorted(processes, key=itemgetter('RAM'), reverse=True)
+    return top_cpu[0:3]
 
 
 def get_avail_mem():
@@ -34,10 +54,6 @@ def get_disk_info():
         }
     return disk_info
 
-
-TEXT_FONT = ("Ariel", 14)
-HEIGHT = 700
-WIDTH = 1000
 
 # CPU
 physical_cores = psutil.cpu_count(logical=False)
@@ -211,6 +227,38 @@ class app:
         # for process in self.processes:
         #     # Sort process with the most CPU usage and/or ram usage
         #     print(f"PID: {process.pid}, Name: {process.name()}")
+        self.intro_process = tk.Label(
+            self.main_frame, text="Process Overview", font=("Helvatica", 18))
+        self.intro_process.pack()
+
+        self.most_mem = tk.Label(
+            self.main_frame, text="Most Memory Usage", font=("Helvatica", 16))
+        self.most_mem.pack()
+
+        for process in getProcessesWithMostRAM():
+            self.pid = tk.Label(
+                self.main_frame, text=f"PID: {process['PID']}", font=TEXT_FONT
+            )
+            self.pid.pack(pady=5)
+            self.p_name = tk.Label(
+                self.main_frame, text=f"Program Name: {process['Name']}", font=TEXT_FONT
+            )
+            self.p_name.pack()
+
+            self.p_mem = tk.Label(
+                self.main_frame, text=f"Memory Usage: {round(process['RAM'],3)} GB", font=TEXT_FONT
+            )
+            self.p_mem.pack()
+
+            # self.parent = tk.Label(
+            #     self.main_frame, text=f"Parent PID: {process['Parent'].pid if process['Parent'] is not None else 0}", font=TEXT_FONT
+            # )
+            # self.parent.pack()
+
+        self.refresh_processes = tk.Button(
+            self.main_frame, text=f"Refresh", font=TEXT_FONT, command=self.process
+        )
+        self.refresh_processes.pack(pady=10)
 
     def log(self):
         self.clear()
