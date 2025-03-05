@@ -11,6 +11,38 @@ import platform
 total_mem = psutil.virtual_memory().total / (1024.0 ** 3)
 
 
+def get_avail_mem():
+    return psutil.virtual_memory().available / (1024.0 ** 3)
+
+
+def get_cpu_usage():
+    return psutil.cpu_percent(interval=1)
+
+
+def get_disk_info():
+    partitions = psutil.disk_partitions()
+    disk_info = {}
+    for partition in partitions:
+        partition_usage = psutil.disk_usage(partition.mountpoint)
+        disk_info[partition.mountpoint] = {
+            "total_space": partition_usage.total / (1024.0 ** 3),
+            "used_space": partition_usage.used / (1024.0 ** 3),
+            "free_space": partition_usage.free / (1024.0 ** 3),
+            "usage_percentage": partition_usage.percent
+        }
+    return disk_info
+
+
+TEXT_FONT = ("Ariel", 14)
+HEIGHT = 700
+WIDTH = 1000
+
+# CPU
+physical_cores = psutil.cpu_count(logical=False)
+total_cores = psutil.cpu_count(logical=True)
+cpu_speed = psutil.cpu_freq().current
+
+
 class app:
     def __init__(self, master_frame: tk.Tk):
         self.master = master_frame  # The frame that will be destroyed
@@ -20,13 +52,13 @@ class app:
         self.option_frame = tk.Frame(master_frame, bg="#c3c3c3")
         self.option_frame.pack(side=tk.LEFT)
         self.option_frame.pack_propagate(False)
-        self.option_frame.configure(width=200, height=500)
+        self.option_frame.configure(width=WIDTH-800, height=HEIGHT)
         # main_frame
         self.main_frame = tk.Frame(
             master_frame, highlightbackground='black', highlightthickness=2)
         self.main_frame.pack(side=tk.LEFT)
         self.main_frame.pack_propagate(False)
-        self.main_frame.configure(height=500, width=1000)
+        self.main_frame.configure(height=HEIGHT, width=WIDTH)
 
         # Buttons
         self.home_btn = tk.Button(self.option_frame, text="Overview", font=(
@@ -47,6 +79,10 @@ class app:
         self.log = tk.Button(self.option_frame, text="Log Analysis", font=(
             "Bold", 15), fg="#158aff", bd=0, bg="#c3c3c3", command=self.log)
         self.log.place(x=10, y=200)
+
+        self.disks = tk.Button(self.option_frame, text="Disks Overview", font=(
+            "Bold", 15), fg="#158aff", bd=0, bg="#c3c3c3", command=self.disk)
+        self.disks.place(x=10, y=250)
 
         self.home()
 
@@ -81,8 +117,85 @@ class app:
         )
         self.total_mem.pack(pady=10)
 
+        # Free Memory, will change so we need a refresh button
+        self.avail_mem = tk.Label(
+            self.main_frame, text=f"Available Memory: {round(get_avail_mem(), 3)} GB", font=("Ariel", 14)
+        )
+        self.avail_mem.pack()
+
+        self.refresh = tk.Button(
+            self.main_frame, text="Refresh Available Memory", font=("Ariel", 12), command=lambda: self.updateAvailMem(self.avail_mem)
+        )
+        self.refresh.pack()
+
+        #######################
+        self.total_cpu_phy = tk.Label(
+            self.main_frame, text=f"Physical Cores: {physical_cores}", font=("Ariel", 14)
+        )
+        self.total_cpu_phy.pack(pady=10)
+
+        self.total_core = tk.Label(
+            self.main_frame, text=f"Total Cores: {total_cores}", font=("Ariel", 14)
+        )
+        self.total_core.pack()
+
+        self.speed = tk.Label(
+            self.main_frame, text=f"CPU Speed: {cpu_speed} MHz", font=("Ariel", 14)
+        )
+        self.speed.pack()
+
+        self.cpu_usage = tk.Label(
+            self.main_frame, text=f"Average CPU Usage: {round(get_cpu_usage(), 3)} %", font=("Ariel", 14)
+        )
+        self.cpu_usage.pack()
+
+        self.refresh2 = tk.Button(
+            self.main_frame, text="Refresh CPU Usage", font=("Ariel", 12), command=lambda: self.updateCPU(self.cpu_usage)
+        )
+        self.refresh2.pack()
+
+    def updateAvailMem(self, avail_mem):
+        avail_mem.config(
+            text=f"Available Memory: {round(get_avail_mem(), 3)} GB", font=("Ariel", 14)
+        )
+
+    def updateCPU(self, use_cpu):
+        use_cpu.config(
+            text=f"Average CPU Usage: {round(get_cpu_usage(), 3)} %", font=("Ariel", 14)
+        )
+
+    def disk(self):
+        self.clear()
+        # Show each disk
+        self.intro_disk = tk.Label(
+            self.main_frame, text="Disk Overview", font=("Helvatica", 18))
+        self.intro_disk.pack()
+
+        self.disk_info = get_disk_info()
+        for drive, info in self.disk_info.items():
+            self.disk_name = tk.Label(
+                self.main_frame, text=f"Drive {drive}", font=TEXT_FONT
+            )
+            self.disk_name.pack()
+            self.total_space = tk.Label(
+                self.main_frame, text=f"Total Space: {round(info['total_space'], 3)} GB", font=TEXT_FONT
+            )
+            self.total_space.pack()
+            self.used_space = tk.Label(
+                self.main_frame, text=f"Used Space: {round(info['used_space'], 3)} GB", font=TEXT_FONT
+            )
+            self.used_space.pack()
+            self.free_space = tk.Label(
+                self.main_frame, text=f"Free Space: {round(info['free_space'], 3)} GB", font=TEXT_FONT
+            )
+            self.free_space.pack()
+
     def fim(self):
         self.clear()
+        # Show disk data
+        self.intro_fim = tk.Label(
+            self.main_frame, text="File Integrity Overview", font=("Helvatica", 18))
+        self.intro_fim.pack()
 
     def process(self):
         self.clear()
@@ -97,7 +210,7 @@ class app:
 
 
 root = tk.Tk()
-root.geometry("1000x500")
+root.geometry(f"{WIDTH}x{HEIGHT}")
 root.title("My SIEM")
 # Removing resizing because scaling everything takes a lot of efforts
 root.resizable(False, False)
